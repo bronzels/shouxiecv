@@ -2,3 +2,6 @@ OpenCV
 template-matching-ocr
 OpenCVLearning
 image_processing
+bili-doc-scan-ocr/leptonica-1.84.1*
+bili-doc-scan-ocr/tesseract-5.4.1*
+bili-doc-scan-ocr/imagesor

@@ -36,6 +36,9 @@ wget -c https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.4.1.tar.g
 tar xzvf tesseract-5.4.1.tar.gz
 cd tesseract-5.4.1
 ./autogen.sh
+brew install cairo pango icu4c autoconf libffi libarchive libpng
+export PKG_CONFIG_PATH="/usr/local/opt/icu4c/lib/pkgconfig"
+pip install pyicu
 ./configure --prefix=/data0/tesseract --with-extra-includes=/usr/local/include --with-extra-libraries=/usr/local/include
 #可能时间长
 :<<EOF
@@ -50,7 +53,6 @@ checking for cairo... yes
 checking for pangocairo... no
 checking for pangoft2... no
 EOF
-brew install cairo pango icu4c autoconf libffi libarchive libpng
 make -j 100
 make install
 make training -j 100
