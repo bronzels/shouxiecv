@@ -4,17 +4,17 @@ pip install opencv-python opencv-contrib-python opencv-python-headless
 pip install matplotlib 
 
 git clone git@github.com:AccumulateMore/OpenCV
-mkdir bili-opencv
-cd bili-opencv
-ln -s ../OpenCV/01_Picture 01_Picture
-ln -s ../OpenCV/02_Video 02_Video
+mkdir opencv
+cd opencv
+ln -s ../orig-OpenCV/01_Picture 01_Picture
+ln -s ../orig-OpenCV/02_Video 02_Video
 
 #https://www.haolizi.net/example/view_271111.html
 #下载代码解压
-mkdir bili-template-matching-ocr
-cd bili-template-matching-ocr
-ln -s ../template-matching-ocr/images images
-ln -s ../template-matching-ocr/ocr_a_reference.png ocr_a_reference.png
+mkdir template-matching-ocr
+cd template-matching-ocr
+ln -s ../orig-template-matching-ocr/images images
+ln -s ../orig-template-matching-ocr/ocr_a_reference.png ocr_a_reference.png
 
 
 #yum install tesseract -y
@@ -262,43 +262,57 @@ tesseract test.png output_1 -l eng
 #参考以下用jTessBoxEditor重新xunli9antesseract
 #https://blog.csdn.net/weixin_44143876/article/details/134485827
 #https://sourceforge.net/projects/vietocr/files/jTessBoxEditor/jTessBoxEditor-2.6.0.zip/download
+unzip jTessBoxEditor-2.6.0.zip
 #打开jTessBoxEditor/jTessBoxEditor.jar，Tools->Merge TIFF，将样本文件全部选上，并将合并文件保存为numhw.font.exp0.tiff
-kdir newfont
+mkdir newfont
 cd newfont
-tesseract numhw.tiff numhw batch.nochop makebox
-echo "numhw 0 0 0 0 0" >> font_properties
+tesseract numhw.font.exp0.tiff numhw.font.exp0 batch.nochop makebox
+echo "font 0 0 0 0 0" >> font_properties
 cat << EOF > numhw.sh
 echo "Run Tesseract for Training.. "
-tesseract numhw.tiff numhw.exp0 nobatch box.train 
+tesseract numhw.font.exp0.tiff numhw.font.exp0 nobatch box.train 
  
 echo "Compute the Character Set.. "
-unicharset_extractor numhw.box 
-mftraining -F font_properties -U unicharset -O num.unicharset numhw.font.exp0.tr 
+unicharset_extractor numhw.font.exp0.box
+mftraining -F font_properties -U unicharset -O numhw.unicharset numhw.font.exp0.tr 
 
 
 echo "Clustering.. "
 cntraining numhw.font.exp0.tr 
 
 echo "Rename Files.. "
-rename normproto num.normproto 
-rename inttemp num.inttemp 
-rename pffmtable num.pffmtable 
-rename shapetable num.shapetable  
+mv normproto numhw.normproto 
+mv inttemp numhw.inttemp 
+mv pffmtable numhw.pffmtable 
+mv shapetable numhw.shapetable  
 
-echo Create Tessdata.. 
-combine_tessdata.exe num. 
+echo "Create Tessdata.. "
+combine_tessdata numhw. 
 EOF
-
-unzip jTessBoxEditor-2.6.0.zip
+cp numhw.traineddata /Volumes/data/tesseract/share/tessdata/
+cd ..
+tesseract test.png output_1 -l numhw
+#real:762408
+#output:742408
 pip install pytesseract 
 #0.3.13
 #clone源码
 git clone git@github.com:zhongqiangwu960812/OpenCVLearning
-mkdir bili-doc-scan-ocr
-cd bili-doc-scan-ocr
+mkdir doc-scan-ocr
+cd doc-scan-ocr
 cp -r ../OpenCVLearning/项目实战二_文档扫描ocr识别/images images
 cp ../OpenCVLearning/项目实战二_文档扫描ocr识别/images/scan.jpg scan.jpg
+jupyter nbconvert --to script ../OpenCVLearning/项目实战二_文档扫描ocr识别/jupyter/图像预处理.ipynb
 
+pip install torch torchvision pretrainedmodels timm
+mkdir parkinglot-glance
+cd parkinglot-glance
+mkdir cnn_pred_data
+mkdir saved_model_weight
+cp -r ../OpenCVLearning/项目实战三_停车场车位识别/test_images test_images
+cp -r ../OpenCVLearning/项目实战三_停车场车位识别/train_data train_data
+cp -r ../OpenCVLearning/项目实战三_停车场车位识别/video video
 
 git clone git@github.com:ZhiqiangHo/Opencv-Computer-Vision-Practice-Python-
+
 git clone git@github.com:YvanYan/image_processing
