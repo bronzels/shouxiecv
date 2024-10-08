@@ -313,6 +313,11 @@ cp -r ../OpenCVLearning/项目实战三_停车场车位识别/test_images test_i
 cp -r ../OpenCVLearning/项目实战三_停车场车位识别/train_data train_data
 cp -r ../OpenCVLearning/项目实战三_停车场车位识别/video video
 
-git clone git@github.com:ZhiqiangHo/Opencv-Computer-Vision-Practice-Python-
-
 git clone git@github.com:YvanYan/image_processing
+mkdir answer_sheet
+cd answer_sheet
+mkdir images
+cp ../image_processing/answer_sheet/*.png images/
+
+
+git clone git@github.com:ZhiqiangHo/Opencv-Computer-Vision-Practice-Python-
