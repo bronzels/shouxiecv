@@ -5,3 +5,12 @@ image_processing
 doc-scan-ocr/leptonica-1.84.1*
 doc-scan-ocr/tesseract-5.4.1*
 doc-scan-ocr/imagesor
+doc-scan-ocr/newfont
+parkinglot-aeroview/cnn_pred_data
+parkinglot-aeroview/saved_model_weight
+parkinglot-aeroview/test_images
+parkinglot-aeroview/train_data
+parkinglot-aeroview/video
+parkinglot-aeroview/with_marking*.jpg
+answer_sheet/images
+*.pyc

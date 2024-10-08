@@ -321,3 +321,9 @@ cp ../image_processing/answer_sheet/*.png images/
 
 
 git clone git@github.com:ZhiqiangHo/Opencv-Computer-Vision-Practice-Python-
+mkdir blob_from_images
+cd blob_from_images
+cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/images images
+cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/bvlc_googlenet.caffemodel bvlc_googlenet.caffemodel
+cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/bvlc_googlenet.prototxt bvlc_googlenet.prototxt
+cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/synset_words.txt synset_words.txt
