@@ -327,3 +327,13 @@ cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/images images
 cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/bvlc_googlenet.caffemodel bvlc_googlenet.caffemodel
 cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/bvlc_googlenet.prototxt bvlc_googlenet.prototxt
 cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 18"/synset_words.txt synset_words.txt
+
+mkdir multi-object-tracking
+cd multi-object-tracking
+cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 19"/multi-object-tracking/videos videos
+
+pip install dlib
+mkdir multi-object-tracking-dlib
+cd multi-object-tracking-dlib
+cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 19"/multiobject-tracking-dlib/mobilenet_ssd mobilenet_ssd
+cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 19"/multiobject-tracking-dlib/race.mp4 ./

@@ -14,3 +14,6 @@ parkinglot-aeroview/video
 parkinglot-aeroview/with_marking*.jpg
 answer_sheet/images
 *.pyc
+yolov5-opencv-pycpp-tensorrt
+multi-object-tracking/videos
+multi-object-tracking-dlib/mobilenet_ssd
