@@ -337,3 +337,9 @@ mkdir multi-object-tracking-dlib
 cd multi-object-tracking-dlib
 cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 19"/multiobject-tracking-dlib/mobilenet_ssd mobilenet_ssd
 cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 19"/multiobject-tracking-dlib/race.mp4 ./
+
+pip install scikit-image
+mkdir convolutions
+
+#git clone git@github.com:hpc203/yolov5-face-landmarks-opencv-v2.git
+#git clone git@github.com:iwanggp/yolov5-opencv-pycpp-tensorrt.git
