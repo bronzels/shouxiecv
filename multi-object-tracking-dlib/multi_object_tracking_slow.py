@@ -80,6 +80,8 @@ while True:
         # 得到检测结果
         net.setInput(blob)
         detections = net.forward()
+        #(1, 1, 100, 7)
+        #0保留，1 class，2 概率，3-6是2个点的坐标
 
         # 遍历得到的检测结果
         for i in np.arange(0, detections.shape[2]):

@@ -341,5 +341,12 @@ cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 19"/multiobject-tracking-
 pip install scikit-image
 mkdir convolutions
 
+pip install imutils
+mkdir face-blink-detection
+cd face-blink-detection
+cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 21"/Face/images images
+cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 21"/Face/shape_predictor_68_face_landmarks.dat ./
+cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 21"/blink-detection/test.mp4 ./
+
 #git clone git@github.com:hpc203/yolov5-face-landmarks-opencv-v2.git
 #git clone git@github.com:iwanggp/yolov5-opencv-pycpp-tensorrt.git
