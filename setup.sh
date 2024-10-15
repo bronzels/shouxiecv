@@ -397,6 +397,7 @@ nerdctl logs -f label-studio
 #docker一样有这个lock问题和转啊转的问题无法使用
 EOF
 #mac上用edge而不是safari打开，4张一起标还是有一样问题，左边列表，右边打标，一张一张提交没问题
+#nginx没必要安装，预打标不是提供.pt模型文件的url，而是HumanSignal另外一个工具生成的服务程序跑起来以后提供的url
 mkdir -p /data0/nginx/logs
 nerdctl run -d --name nginx -p 9004:80 nginx
 nerdctl cp nginx:/etc/nginx/conf.d/default.conf /data0/nginx/
@@ -420,3 +421,42 @@ nerdctl run -d -p 9004:80 --name nginx \
 -v /data0/nginx/default.conf:/etc/nginx/conf.d/default.conf \
 -v /data0/nginx/logs:/var/log/nginx \
 nginx
+#
+conda create -n labelstudio-ml -y python=3.10
+conda activate labelstudio-ml
+git clone git@github.com:HumanSignal/label-studio
+pip install .
+#git clone git@github.com:HumanSignal/label-studio-sdk
+#cd label-studio-sdk
+#pip install .
+cd ..
+git clone git@github.com:HumanSignal/label-studio-ml-backend
+#修改requirements.txt，删除对abel-studio-sdk的引用
+cd label-studio-ml-backend
+pip install .
+#安装yolov8
+label-studio-ml create yolov8_ml_backend
+cp yolov8_ml_backend/model.py yolov8_ml_backend/model.py.bk
+#修改加入Yolov8的模型逻辑
+\cp /workspace/shouxiecv/search_on_2d/lsml-yolov8-model.py yolov8_ml_backend/model.py
+export LABEL_STUDIO_URL=http://localhost:8080
+export LABEL_STUDIO_API_KEY=d21316427326a59b28eb8342a339253b7c8024c2
+export LABEL_STUDIO_MODEL_PATH=/workspace/shouxiecv/search_on_2d/v8pt/yolo11x.pt
+export LABEL_STUDIO_MODEL_CONF=0.7
+export LABEL_STUDIO_MODEL_VERSION=v11x
+label-studio-ml start yolov8_ml_backend -p 9091
+cd /workspace/search_on_2d
+\cp ultralytics/ultralytics/cfg/datasets/coco.yaml catperson.yaml
+#修改训练yaml数据文件
+python yolov8-train.py
+'''
+Downloading https://ultralytics.com/assets/Arial.ttf to '/root/.config/Ultralytics/Arial.ttf'...
+'''
+wget -c https://ultralytics.com/assets/Arial.ttf -o /root/.config/Ultralytics/
+'''
+Transferred 1009/1015 items from pretrained weights
+Freezing layer 'model.23.dfl.conv.weight'
+AMP: running Automatic Mixed Precision (AMP) checks with YOLO11n...
+Downloading https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt to 'yolo11n.pt'...
+'''
+ln -s v8pt/yolo11n.pt yolo11n.pt
