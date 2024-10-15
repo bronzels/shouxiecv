@@ -6,6 +6,7 @@ doc-scan-ocr/leptonica-1.84.1*
 doc-scan-ocr/tesseract-5.4.1*
 doc-scan-ocr/imagesor
 doc-scan-ocr/newfont
+cv2.dnn.readNetFromCaffe/images
 parkinglot-aeroview/cnn_pred_data
 parkinglot-aeroview/saved_model_weight
 parkinglot-aeroview/test_images
@@ -17,4 +18,10 @@ answer_sheet/images
 yolov5-opencv-pycpp-tensorrt
 multi-object-tracking/videos
 multi-object-tracking-dlib/mobilenet_ssd
-yolov5-face-landmarks-opencv-v2
+search_on_2d/book
+search_on_2d/cat-person
+search_on_2d/yolov5
+search_on_2d/v5pt
+search_on_2d/ultrlytics
+search_on_2d/v8pt
+search_on_2d/project-1-at-*

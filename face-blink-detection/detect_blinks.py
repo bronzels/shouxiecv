@@ -6,8 +6,7 @@ import argparse
 import time
 import dlib
 import cv2
-import imutils
-
+from imutils.video import FileVideoStream
 
 FACIAL_LANDMARKS_68_IDXS = OrderedDict([
     ("mouth", (48, 68)),
@@ -60,8 +59,8 @@ predictor = dlib.shape_predictor(args["shape_predictor"])
 
 # 读取视频
 print("[INFO] starting video stream thread...")
-vs = cv2.VideoCapture(args["video"])
-#vs = imutils.video.FileVideoStream(args["video"]).start()
+#vs = cv2.VideoCapture(args["video"])
+vs = FileVideoStream(args["video"]).start()
 time.sleep(1.0)
 
 def shape_to_np(shape, dtype="int"):
@@ -76,7 +75,8 @@ def shape_to_np(shape, dtype="int"):
 # 遍历每一帧
 while True:
     #预处理
-    frame = vs.read()[1]
+    #frame = vs.read()[1] #opencv
+    frame = vs.read() #imutils
     if frame is None:
         break
     (h, w) = frame.shape[:2]
@@ -123,14 +123,7 @@ while True:
             COUNTER = 0
         
         # 显示
-        cv2.putText(frame, "Blinks
-        
-        
-        
-        
-        
-        
-        :{}".format(TOTAL), (leftEye[0][0], leftEye[0][1] + 10),
+        cv2.putText(frame, "Blinks:{}".format(TOTAL), (leftEye[0][0], leftEye[0][1] + 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
         cv2.putText(frame, "EAR:{:.2f}".format(ear), (leftEye[0][0], leftEye[0][1] + 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
@@ -141,5 +134,11 @@ while True:
     if key == 27:
         break
 
-vs.release()
+#vs.release() #opencv
+vs.stop() #imutils
 cv2.destroyAllWindows()
+
+
+
+
+

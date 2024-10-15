@@ -1,3 +1,19 @@
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Mac detected."
+    #mac
+    os=darwin
+    MYHOME=/Volumes/data
+    SED=gsed
+    bin=/Users/apple/bin
+else
+    echo "Assuming linux by default."
+    #linux
+    os=linux
+    MYHOME=~
+    SED=sed
+    bin=/usr/local/bin
+fi
+
 pip install jupyter notebook
 pip install opencv-python opencv-contrib-python opencv-python-headless
 #-4.10.0.84
@@ -348,5 +364,59 @@ cp -r ../Opencv-Computer-Vision-Practice-Python-/"Chapter 21"/Face/images images
 cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 21"/Face/shape_predictor_68_face_landmarks.dat ./
 cp ../Opencv-Computer-Vision-Practice-Python-/"Chapter 21"/blink-detection/test.mp4 ./
 
-#git clone git@github.com:hpc203/yolov5-face-landmarks-opencv-v2.git
-#git clone git@github.com:iwanggp/yolov5-opencv-pycpp-tensorrt.git
+pip install scikit-learn
+wget -c https://download.pytorch.org/models/resnet101-5d3b4d8f.pth
+#huggingface-hub          0.25.2的版本，加载本地模型时也会报错
+#ModuleNotFoundError: No module named 'huggingface_hub.utils._errors'
+pip install huggingface-hub==0.24.5
+git clone git@github.com:ultralytics/yolov5 yolov5-master
+pip install yolov5
+wget -c https://github.com/ultralytics/yolov5/releases/download/v7.0/yolov5s.pt
+git clone git@github.com:ultralytics/ultralytics  # clone
+cd ultralytics
+#pip install -e '.[dev]'
+pip install '.[dev]'
+wget -c https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11s.pt
+ln -s ../v8pt pt
+
+conda create -n labelstudio -y python=3.10
+conda activate labelstudio
+#submit一组label以后转啊转的提示很久，打断检查，只有2个图片的labe被保存了
+#有出错提示[tasks.models::set_lock::355] [ERROR] Current number of locks for task 2 is 1, but overlap=1: that's a bug because this task should not be taken in a label stream (task should be locked)
+#3.7/1.9.2还是有这个问题，左边列表，右边打标，一张一张提交开始没问题，后来随机继续转啊转
+#数据在.local里
+rm -rf ~/.local/share/label-studio
+pip install label-studio
+label-studio
+:<<EOF
+mkdir label-studio-data
+chmod 777 label-studio-data
+rm -rf label-studio-data/*
+nerdctl run -d -p 8080:8080 -v $(pwd)/catperson:/label-studio/catperson -v $(pwd)/label-studio-data:/label-studio/data --name label-studio heartexlabs/label-studio:latest
+nerdctl logs -f label-studio
+#docker一样有这个lock问题和转啊转的问题无法使用
+EOF
+#mac上用edge而不是safari打开，4张一起标还是有一样问题，左边列表，右边打标，一张一张提交没问题
+mkdir -p /data0/nginx/logs
+nerdctl run -d --name nginx -p 9004:80 nginx
+nerdctl cp nginx:/etc/nginx/conf.d/default.conf /data0/nginx/
+nerdctl stop nginx && nerdctl rm nginx
+#-v /workspace:/usr/share/nginx/html \
+#-v /data0/nginx/conf:/etc/nginx \
+#-v /workspace:/home/www \
+:<<EOF
+    location / {
+        #root   /usr/share/nginx/html;
+        #root   /home/www;
+        root   /home/files;
+        autoindex on;                            #开启目录浏览功能；   
+        autoindex_exact_size off;            #关闭详细文件大小统计，让文件大小显示MB，GB单位，默认为b；   
+        autoindex_localtime on;              #开启以服务器本地时区显示文件修改日期！   
+        #index  index.html index.htm;
+    }
+EOF
+nerdctl run -d -p 9004:80 --name nginx \
+-v /workspace:/home/files \
+-v /data0/nginx/default.conf:/etc/nginx/conf.d/default.conf \
+-v /data0/nginx/logs:/var/log/nginx \
+nginx
