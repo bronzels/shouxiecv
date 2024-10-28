@@ -416,7 +416,7 @@ nerdctl stop nginx && nerdctl rm nginx
         #index  index.html index.htm;
     }
 EOF
-nerdctl run -d -p 9004:80 --name nginx \
+nerdctl run -d -p 9004:80 --restart=always --name nginx \
 -v /workspace:/home/files \
 -v /data0/nginx/default.conf:/etc/nginx/conf.d/default.conf \
 -v /data0/nginx/logs:/var/log/nginx \
@@ -460,3 +460,91 @@ AMP: running Automatic Mixed Precision (AMP) checks with YOLO11n...
 Downloading https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt to 'yolo11n.pt'...
 '''
 ln -s v8pt/yolo11n.pt yolo11n.pt
+
+
+git clone git@github.com:frotms/PaddleOCR2Pytorch
+cd PaddleOCR2Pytorch
+cat << EOF > req.txt
+shapely
+numpy==1.23.5
+pillow==9.5
+pyclipper
+opencv-python <= 4.2.0.32
+torch==2.4.1
+EOF
+#2.5.0会报错ImportError: /data0/envs/paddleocr/lib/python3.10/site-packages/torch/lib/../../nvidia/cusparse/lib/libcusparse.so.12: symbol __nvJitLinkComplete_12_4, version libnvJitLink.so.12 not defined in file libnvJitLink.so.12 with link time reference
+#和低版本cuda兼容有问题
+pip install -r req.txt
+pip install opencv-python opencv-contrib-python opencv-python-headless
+pip install size scikit-image pyyaml torchvision==0.19.1
+ln -s /workspace/models/cv/paddleocr/torch pth
+
+#中文
+python ./tools/infer/predict_det.py --image_dir ./doc/imgs/00009282.jpg --det_model_path pth/ch_ptocr_v4_det_server_infer.pth --det_yaml_path ./configs/det/ch_PP-OCRv4/ch_PP-OCRv4_det_teacher.yml
+python ./tools/infer/predict_rec.py --image_dir ./doc/imgs_words/ch/word_1.jpg --rec_model_path pth/ch_ptocr_v4_rec_server_infer.pth --rec_yaml_path ./configs/rec/PP-OCRv4/ch_PP-OCRv4_rec_hgnet.yml --rec_image_shape='3,48,320'
+
+#多语言
+python ./tools/infer/predict_det.py --det_algorithm DB --det_yaml_path ./configs/det/det_ppocr_v3.yml --det_model_path pth/en_ptocr_v3_det_infer.pth --image_dir ./doc/imgs/1.jpg
+python ./tools/infer/predict_rec.py --image_dir ./doc/imgs_words/en/word_1.png --rec_model_path pth/en_ptocr_v4_rec_infer.pth --rec_yaml_path ./configs/rec/PP-OCRv4/en_PP-OCRv4_rec.yml --rec_image_shape='3,48,320' --rec_char_dict_path ./pytorchocr/utils/en_dict.txt
+
+cp -r doc/imgs doc/imgs.bk
+mkdir doc/imgs-test-french && mv doc/imgs/french_*.jpg doc/imgs-test-french/
+mkdir doc/imgs-test-german && mv doc/imgs/ger_*.jpg doc/imgs-test-german/
+mkdir doc/imgs-test-japan && mv doc/imgs/japan_*.jpg doc/imgs-test-japan/
+mkdir doc/imgs-test-korean && mv doc/imgs/korean_*.jpg doc/imgs-test-korean/
+#串联使用方向分类
+python3 ./tools/infer/predict_system.py --image_dir ./doc/imgs --det_model_path pth/ch_ptocr_mobile_v2.0_det_infer.pth --rec_model_path pth/ch_ptocr_mobile_v2.0_rec_infer.pth --use_angle_cls True --cls_model_path pth/ch_ptocr_mobile_v2.0_cls_infer.pth --vis_font_path ./doc/fonts/chinese_cht.ttf
+python3 ./tools/infer/predict_system.py --image_dir ./doc/imgs-test-korean --det_model_path pth/ch_ptocr_mobile_v2.0_det_infer.pth --rec_model_path pth/ch_ptocr_mobile_v2.0_rec_infer.pth --use_angle_cls True --cls_model_path pth/ch_ptocr_mobile_v2.0_cls_infer.pth --vis_font_path ./doc/fonts/korean.ttf
+#无法识别
+#串联不使用方向分类
+python3 ./tools/infer/predict_system.py --image_dir ./doc/imgs --det_model_path pth/ch_ptocr_v4_det_server_infer.pth --det_yaml_path ./configs/det/ch_PP-OCRv4/ch_PP-OCRv4_det_teacher.yml --rec_image_shape 3,48,320 --rec_model_path pth/ch_ptocr_v4_rec_server_infer.pth --rec_yaml_path ./configs/rec/PP-OCRv4/ch_PP-OCRv4_rec_hgnet.yml
+python3 ./tools/infer/predict_system.py --image_dir ./doc/imgs --det_yaml_path ./configs/det/det_ppocr_v3.yml --det_model_path pth/en_ptocr_v3_det_infer.pth --rec_model_path pth/en_ptocr_v4_rec_infer.pth --rec_yaml_path ./configs/rec/PP-OCRv4/en_PP-OCRv4_rec.yml --rec_image_shape='3,48,320'
+#RuntimeError: Error(s) in loading state_dict for BaseModel:
+python tools/infer/predict_e2e.py --e2e_model_path pth/en_server_pgnetA_infer.pth --image_dir ./doc/imgs_en/img623.jpg --e2e_algorithm PGNet --e2e_pgnet_polygon True --e2e_char_dict_path ./pytorchocr/utils/ic15_dict.txt --e2e_yaml_path ./configs/e2e/e2e_r50_vd_pg.yml
+python tools/infer/predict_e2e.py --e2e_model_path pth/en_server_pgnetA_infer.pth --image_dir ./doc/imgs/1.jpg --e2e_algorithm PGNet --e2e_pgnet_polygon True --e2e_char_dict_path ./pytorchocr/utils/ppocr_keys_v1.txt --e2e_yaml_path ./configs/e2e/e2e_r50_vd_pg.yml
+#不能识别
+#超分辨率
+python ./tools/infer/predict_sr.py --sr_yaml_path ./configs/sr/sr_telescope.yml --sr_model_path pth/sr_telescope_infer.pth --image_dir ./doc/imgs_words_en/word_52.png
+:<<EOF
+  File "/workspace/shouxiecv/PaddleOCR2Pytorch/tools/infer/pytorchocr_utility.py", line 150, in read_network_config_from_yaml
+    if res['Architecture']['Head']['name'] == 'MultiHead' and char_num is not None:
+KeyError: 'Head'
+EOF
+# 执行表格识别
+mkdir ./inference_results/table
+
+git clone git@github.com:PaddlePaddle/PaddleOCR.git
+pip install -r requirements.txt
+pip install paddlepaddle premailer openpyxl
+ln -s /workspace/models/cv/paddleocr/pp tar
+cd ppstructure
+python3 predict_system.py --det_model_dir=../tar/ch_PP-OCRv4_det_server_infer \
+                          --rec_model_dir=../tar/ch_PP-OCRv4_rec_server_infer \
+                          --table_model_dir=../tar/ch_ppstructure_mobile_v2.0_SLANet_infer \
+                          --layout_model_dir=../tar/picodet_lcnet_x1_0_fgd_layout_infer \
+                          --image_dir=./docs/table/1.png \
+                          --rec_char_dict_path=../ppocr/utils/ppocr_keys_v1.txt \
+                          --table_char_dict_path=../ppocr/utils/dict/table_structure_dict_ch.txt \
+                          --output=../output \
+                          --vis_font_path=../doc/fonts/simfang.ttf
+python3 predict_system.py --layout_model_dir=../tar/picodet_lcnet_x1_0_fgd_layout_infer \
+                          --image_dir=./docs/table/1.png \
+                          --output=../output \
+                          --table=false \
+                          --ocr=false \
+                          --vis_font_path=../doc/fonts/simfang.ttf
+python3 predict_system.py --det_model_dir=../tar/ch_PP-OCRv4_det_server_infer \
+                          --rec_model_dir=../tar/ch_PP-OCRv4_rec_server_infer \
+                          --table_model_dir=../tar/ch_ppstructure_mobile_v2.0_SLANet_infer \
+                          --image_dir=./docs/table/table.jpg \
+                          --rec_char_dict_path=../ppocr/utils/ppocr_keys_v1.txt \
+                          --table_char_dict_path=../ppocr/utils/dict/table_structure_dict_ch.txt \
+                          --output=../output \
+                          --vis_font_path=../doc/fonts/simfang.ttf \
+                          --layout=false
+git clone git@github.com:datawhalechina/dive-into-cv-pytorch.git dive-into-cv-pytorch-orig
+git clone git@github.com:PaddleOCR-Community/Dive-into-OCR Dive-into-OCR-orig
+
+
+
+
