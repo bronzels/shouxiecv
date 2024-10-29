@@ -2,7 +2,8 @@ from ultralytics.models.yolo import YOLO
 import torch
 
 # Load a model
-model = YOLO('v8pt/yolo11x.pt')  # load a pretrained model (recommended for training)
+#model = YOLO('v8pt/yolo11x.pt')  # load a pretrained model (recommended for training)
+model = YOLO('yolo11.yaml', task='detect') 
 #11x-batch4
 
 # train the model

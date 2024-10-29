@@ -13,15 +13,18 @@ model = YOLO('v8pt/yolo11x.pt')  # load a pretrained model (recommended for trai
 with open("coco.names", "r") as names_file:
     names = [line.strip() for line in names_file.readlines()]
 '''
-model = YOLO('runs/detect/train7/weights/best.pt')
+model = YOLO('runs/detect/train/weights/best.pt')
 names = ["duoduo", "jess"]
 # Use the model
 #results = model.val()  # evaluate model performance on the validation set
 #会下载很多测试集文件
-for input_file_name in glob.glob("catperson-test/*.*"):
+output_dir = os.getcwd() + "/catperson-output"
+for input_file_name in glob.glob("catperson/*.*"):
+#for input_file_name in glob.glob("catperson-test/*.*"):
     #input_file_name='catperson/2012-03-25_12-57-45_888.jpg'
     base, extension = os.path.splitext(input_file_name)
-    output_file_name = f"{base}-output.{extension}"
+    base_name = base.split("/")[-1]
+    output_file_name = f"{output_dir}/{base_name}{extension}"
     input_img = cv2.imread(input_file_name)
     results = model(input_file_name)  # predict on an image
     for result in results:
